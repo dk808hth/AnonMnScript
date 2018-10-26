@@ -3,7 +3,7 @@
 COIN_NAME='ANON' #no spaces
 
 #wallet information
-WALLET_DOWNLOAD=https://www.dropbox.com/s/raw/i0zslq200u6w797/anon-linux.zip'
+WALLET_DOWNLOAD='https://www.dropbox.com/s/raw/i0zslq200u6w797/anon-linux.zip'
 WALLET_TAR_FILE='anon-linux.zip'
 ZIPTAR='unzip' #can be either unzip or tar -xfzg
 EXTRACT_DIR='' #not always necessary, can be blank if zip/tar file has no subdirectories
