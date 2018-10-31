@@ -164,7 +164,6 @@ echo "Basic security completed..."
 echo "Installing sentinel..."
 cd $CONFIG_FOLDER
 sudo apt-get install -y git python-virtualenv
-sudo apt-get install -y git virtualenv
 
 git clone https://github.com/anonymousbitcoin/sentinel.git && cd sentinel
 virtualenv ./venv
