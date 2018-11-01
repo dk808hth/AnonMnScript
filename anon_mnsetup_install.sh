@@ -18,8 +18,8 @@ ADDNODE3='96.126.112.77'
 PORT='33130'
 RPCPORT='19050'
 
-BOOTSTRAP='https://www.dropbox.com/s/raw/fmb7nba3fz5woj6/anon-bootstrap2.zip'
-BOOTSTRAP_ZIP='anon-bootstrap2.zip'
+BOOTSTRAP='https://www.dropbox.com/s/raw/qpiptewnx6i7jhc/anon-bootstrap.zip'
+BOOTSTRAP_ZIP='anon-bootstrap.zip'
 
 FETCHPARAMS='https://raw.githubusercontent.com/anonymousbitcoin/anon/master/anonutil/fetch-params.sh'
 
