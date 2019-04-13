@@ -81,26 +81,19 @@ if [ "x$PASSWORD" = "x" ]; then
     PASSWORD=${WANIP}-`date +%s`
 fi
 
-function prepare_system() 
-{
-  clear
-  echo -e "Checking if swap space is required."
-  local PHYMEM=$(free -g | awk '/^Mem:/{print $2}')
-  
-  if [ "${PHYMEM}" -lt "2" ]; then
-    local SWAP=$(swapon -s get 1 | awk '{print $1}')
-    if [ -z "${SWAP}" ]; then
-      echo -e "${GREEN}Server is running without a swap file and has less than 2G of RAM, creating a 2G swap file.${NC}"
-      dd if=/dev/zero of=/swapfile bs=1024 count=2M
-      chmod 600 /swapfile
-      mkswap /swapfile
-      swapon -a /swapfile
-    else
-      echo -e "${GREEN}Swap file already exists.${NC}"
-    fi
-  else
-    echo -e "${GREEN}Server running with at least 2G of RAM, no swap file needed.${NC}"
-  fi
+create_swap() {
+TOTAL_MEM=$(free -m | awk '/^Mem:/{print $2}')
+TOTAL_SWP=$(free -m | awk '/^Swap:/{print $2}')
+TOTAL_M=$(($TOTAL_MEM + $TOTAL_SWP))
+if [ $TOTAL_M -lt 4000 ]; then
+if ! grep -q '/swapfile' /etc/fstab ; then
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+fi
 }
 
 #Downloading bins
@@ -109,13 +102,12 @@ cd /usr/local/bin/anon/src/
 mv anond anon-cli /usr/local/bin/
 cd
 
-function create_initial_config()
-{
-  echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
-  RPCUSER=`pwgen -1 8 -n`
-  PASSWORD=`pwgen -1 20 -n`
-  touch $CONFIG_FOLDER/$CONFIG_FILE
-  cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
+#Create intitial conf file
+echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
+RPCUSER=`pwgen -1 8 -n`
+PASSWORD=`pwgen -1 20 -n`
+touch $CONFIG_FOLDER/$CONFIG_FILE
+cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
 rpcuser=$RPCUSER
 rpcpassword=$PASSWORD
 rpcallowip=127.0.0.1
@@ -126,36 +118,26 @@ addnode=explorer.anonfork.io
 addnode=explorer.anon.zeltrez.io
 maxconnections=256
 EOF
-}
 
-function download_bootstrap()
-{
-  echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
-  wget -U Mozilla/5.0 $BOOTSTRAP
-  mkdir $CONFIG_FOLDER
-  unzip $BOOTSTRAP_ZIP -d $CONFIG_FOLDER
-  rm -rf $BOOTSTRAP_ZIP
-  clear
-}
+#Bootstrap to sync quick
+echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
+wget -U Mozilla/5.0 $BOOTSTRAP
+mkdir $CONFIG_FOLDER
+unzip $BOOTSTRAP_ZIP -d $CONFIG_FOLDER
+rm -rf $BOOTSTRAP_ZIP
 
-function fetch_params()
-{
-  echo -e "${YELLOW}DOWNLOADING CHAIN PARAMS${NC}"
-  wget $FETCHPARAMS
-  bash fetch-params.sh
-  clear
-}
+#Download params
+echo -e "${YELLOW}DOWNLOADING CHAIN PARAMS${NC}"
+wget $FETCHPARAMS
+bash fetch-params.sh
 
-function install_sentinel()
-{
-  echo "${YELLOW}INSTALLING SENTINEL${NC}"
-  cd
-  git clone https://github.com/anonymousbitcoin/sentinel.git
-  cd sentinel
-  virtualenv ./venv
-  venv/bin/pip install -r requirements.txt
-  clear
-}
+#Install Sentinel
+echo "${YELLOW}INSTALLING SENTINEL${NC}"
+cd
+git clone https://github.com/anonymousbitcoin/sentinel.git
+cd sentinel
+virtualenv ./venv
+venv/bin/pip install -r requirements.txt
 
 #sentinel conf
 SENTINEL_CONF=$(cat <<EOF
@@ -164,36 +146,29 @@ db_name=/home/$USERNAME/sentinel/database/sentinel.db
 db_driver=sqlite
 network=mainnet
 EOF
-)
 
-function conf_sentinel()
-{
-  echo "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
-  echo "$SENTINEL_CONF" > ~/sentinel/sentinel.conf
-  cd
-  crontab -l -echo "* * * * * cd /$USERNAME/sentinel && ./venv/bin/python bin/sentinel.py 2>&1 >> sentinel-cron.log" | crontab 
-  clear
-}  
+#Configure Sentinel
+echo "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
+echo "$SENTINEL_CONF" > ~/sentinel/sentinel.conf
+cd
+crontab -l -echo "* * * * * cd /$USERNAME/sentinel && ./venv/bin/python bin/sentinel.py 2>&1 >> sentinel-cron.log" | crontab   
 
-function configure_firewall()
-{ 
-  echo -e "${YELLOW}CONFIGURING FIREWALL AND ENABLING FAIL2BAN...${NC}"
-  ufw allow $PORT/tcp
-  ufw allow $RPCPORT/tcp
-  ufw allow $SSHPORT/tcp
-  ufw logging on
-  ufw default deny incoming
-  ufw default allow outgoing
-  echo "y" | ufw enable >/dev/null 2>&1
-  systemctl enable fail2ban >/dev/null 2>&1
-  systemctl start fail2ban >/dev/null 2>&1
-}
+#Basic security
+echo -e "${YELLOW}CONFIGURING FIREWALL AND ENABLING FAIL2BAN...${NC}"
+ufw allow $PORT/tcp
+ufw allow $RPCPORT/tcp
+ufw allow $SSHPORT/tcp
+ufw logging on
+ufw default deny incoming
+ufw default allow outgoing
+echo "y" | ufw enable >/dev/null 2>&1
+systemctl enable fail2ban >/dev/null 2>&1
+systemctl start fail2ban >/dev/null 2>&1
 
-function create_daemon_service()
-{
-  echo -e "${YELLOW}CREATING DAEMON SERVICE FILE...${NC}"
-  touch /etc/systemd/system/$COIN_NAME.service
-  cat << EOF > /etc/systemd/system/$COIN_NAME.service
+#Create daemon service
+echo -e "${YELLOW}CREATING DAEMON SERVICE FILE...${NC}"
+touch /etc/systemd/system/$COIN_NAME.service
+cat << EOF > /etc/systemd/system/$COIN_NAME.service
 [Unit]
 Description=$COIN_NAME service
 After=network.target
@@ -215,25 +190,19 @@ StartLimitBurst=5
 WantedBy=multi-user.target
 EOF
 
-  systemctl daemon-reload
-  sleep 3
-  systemctl enable $COIN_NAME.service &> /dev/null
+systemctl daemon-reload
+sleep 3
+systemctl enable $COIN_NAME.service &> /dev/null
 
-  echo -e "${GREEN}STARTING DAEMON SERVICE FOR ANON${NC}"
-  systemctl start $COIN_NAME.service >/dev/null 2>&1
-  clear
-}
+echo -e "${GREEN}STARTING DAEMON SERVICE FOR ANON${NC}"
+systemctl start $COIN_NAME.service >/dev/null 2>&1
 
-function create_genkey()
-{
-  echo -e "${YELLOW}MAKING GENKEY...${NC}"
+#Create genkey
+echo -e "${YELLOW}MAKING GENKEY...${NC}"
 GENKEY=$($COIN_CLI masternode genkey)
-clear
-}
 
-function finalize_conf()
-{
-  cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
+#Finalise conf
+cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
 masternode=1
 masternodeprivkey=$GENKEY
 externalip=$WANIP
@@ -244,7 +213,6 @@ txindex=1
 listen=1
 maxconnections=256
 EOF
-}
 
 echo "============================================================================="
 echo "COPY THIS TO MASTERNODE CONF FILE AND REPLACE TxID and OUTPUT"
