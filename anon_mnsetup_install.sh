@@ -94,17 +94,14 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 #Downloading bins
 function check_distro() {
     # currently only for Ubuntu 16.04 & 18.04
-    if [[ -r /etc/os-release ]]; then
-        . /etc/os-release
-        if [[ "${VERSION_ID}" = "16.04" ]] ; then
-	    echo"Downloading binaries for Ubuntu 16.04"
-	    wget -U Mozilla/5.0 $WALLET_DOWNLOAD
-            unzip $WALLET_ZIP -d $COIN_PATH
-        elif [[ "${VERSION_ID}" = "18.04" ]] ; then
-            echo"Downloading binaries for Ubuntu 18.04"
-	    wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
-            unzip $WALLET_ZIP1 -d $COIN_PATH
-        fi
+    if [[ $(lsb_release -d) = *16.04* ]]; then
+	echo"Downloading binaries for Ubuntu 16.04"
+	wget -U Mozilla/5.0 $WALLET_DOWNLOAD
+        unzip $WALLET_ZIP -d $COIN_PATH
+    elif [[ $(lsb_release -d) = "18.04" ]] ; then
+        echo"Downloading binaries for Ubuntu 18.04"
+	wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
+        unzip $WALLET_ZIP1 -d $COIN_PATH
     fi
 
 #Create intitial conf file
