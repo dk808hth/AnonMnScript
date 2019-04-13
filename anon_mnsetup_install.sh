@@ -32,19 +32,23 @@ NC='\033[0m'
 #
 #
 
-function confirm_ssh_port(){
-  searchString="Port 22"
-  file="/etc/ssh/sshd_config"
-  if grep -Fq "$searchString" $file ; then
+# set var SSHPORT by user imput if not default this is used for UFW firewall settings
+searchString="Port 22"
+file="/etc/ssh/sshd_config"
+if grep -Fq "$searchString" $file ; then
     echo -e "SSH is currently set to the default port 22."
-  else
+else
     echo -e "Looks like you have configured a custom SSH port..."
     echo -e
     read -p 'Enter your custom SSH port, or hit [ENTER] for default: ' SSHPORT
 	  if [ -z "$SSHPORT" ]; then
       SSHPORT=22
-  fi
-}
+    fi
+fi
+echo -e "${YELLOW}Using SSH port:\033[1;32m" $SSHPORT
+echo -e "\033[0m"
+sleep 2
+
 
 echo -e "${YELLOW}Using SSH port:${GREEN}" $SSHPORT
 echo -e "${NC}"
