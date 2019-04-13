@@ -78,9 +78,9 @@ sudo apt-get install python-virtualenv virtualenv -y &> /dev/null
 echo "Packages complete..."
 
 WANIP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-PASSWORD=`pwgen -1 20 -n`
+PASSWORD=$(pwgen -1 20 -n)
 if [ "x$PASSWORD" = "x" ]; then
-    PASSWORD=${WANIP}-`date +%s`
+    PASSWORD=${WANIP}-$(date +%s)
 fi
 
 #Create swap
@@ -91,23 +91,22 @@ mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-#Downloading bins
-function check_distro() {
-    # currently only for Ubuntu 16.04 & 18.04
-    if [[ $(lsb_release -d) = *16.04* ]]; then
-	echo"Downloading binaries for Ubuntu 16.04"
-	wget -U Mozilla/5.0 $WALLET_DOWNLOAD
-        unzip $WALLET_ZIP -d $COIN_PATH
-    elif [[ $(lsb_release -d) = "18.04" ]] ; then
-        echo"Downloading binaries for Ubuntu 18.04"
-	wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
-        unzip $WALLET_ZIP1 -d $COIN_PATH
-    fi
+#Downloading bins currently only for Ubuntu 16.04 & 18.04
+if [[ $(lsb_release -d) = *16.04* ]]; then
+  echo"Downloading binaries for Ubuntu 16.04"
+  wget -U Mozilla/5.0 $WALLET_DOWNLOAD
+  unzip $WALLET_ZIP -d $COIN_PATH
+if [[ $(lsb_release -d) = "18.04" ]] ; then
+  echo"Downloading binaries for Ubuntu 18.04"
+  wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
+  unzip $WALLET_ZIP1 -d $COIN_PATH
+fi
+fi
 
 #Create intitial conf file
 echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
-RPCUSER=`pwgen -1 8 -n`
-PASSWORD=`pwgen -1 20 -n`
+RPCUSER=$(pwgen -1 8 -n)
+PASSWORD=$(pwgen -1 20 -n)
 mkdir $CONFIG_FOLDER
 touch $CONFIG_FOLDER/$CONFIG_FILE
 cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
