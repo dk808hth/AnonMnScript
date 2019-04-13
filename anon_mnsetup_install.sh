@@ -81,7 +81,8 @@ if [ "x$PASSWORD" = "x" ]; then
     PASSWORD=${WANIP}-`date +%s`
 fi
 
-create_swap() {
+#Create swap
+echo -e "${YELLOW}CREATING SWAP...${NC}"
 TOTAL_MEM=$(free -m | awk '/^Mem:/{print $2}')
 TOTAL_SWP=$(free -m | awk '/^Swap:/{print $2}')
 TOTAL_M=$(($TOTAL_MEM + $TOTAL_SWP))
@@ -94,7 +95,6 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 fi
-}
 
 #Downloading bins
 wget -c $WALLET_DOWNLOAD -O - | tar -xz -C /usr/local/bin/
@@ -106,6 +106,7 @@ cd
 echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
 RPCUSER=`pwgen -1 8 -n`
 PASSWORD=`pwgen -1 20 -n`
+mkdir $CONFIG_FOLDER
 touch $CONFIG_FOLDER/$CONFIG_FILE
 cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
 rpcuser=$RPCUSER
@@ -122,7 +123,6 @@ EOF
 #Bootstrap to sync quick
 echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
 wget -U Mozilla/5.0 $BOOTSTRAP
-mkdir $CONFIG_FOLDER
 unzip $BOOTSTRAP_ZIP -d $CONFIG_FOLDER
 rm -rf $BOOTSTRAP_ZIP
 
