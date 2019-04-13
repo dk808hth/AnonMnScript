@@ -51,7 +51,6 @@ echo -e "${YELLOW}Using SSH port:\033[1;32m" $SSHPORT
 echo -e "\033[0m"
 sleep 2
 
-
 echo -e "${YELLOW}Using SSH port:${GREEN}" $SSHPORT
 echo -e "${NC}"
 sleep 2
@@ -85,11 +84,18 @@ fi
 
 #Create swap
 echo -e "${YELLOW}CREATING SWAP...${NC}"
+total_mem=$(free -m | awk '/^Mem:/{print $2}')
+total_swap=$(free -m | awk '/^Swap:/{print $2}')
+total_m=$(($total_mem + $total_swap))
+if [ $total_m -lt 4000 ]; then
+if ! grep -q '/swapfile' /etc/fstab ; then
 fallocate -l 4G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+fi
 
 #Downloading bins currently only for Ubuntu 16.04 & 18.04
 if [[ $(lsb_release -d) = *16.04* ]]; then
