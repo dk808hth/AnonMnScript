@@ -32,8 +32,7 @@ NC='\033[0m'
 #
 #
 
-function confirm_ssh_port()
-{
+function confirm_ssh_port(){
   searchString="Port 22"
   file="/etc/ssh/sshd_config"
   if grep -Fq "$searchString" $file ; then
