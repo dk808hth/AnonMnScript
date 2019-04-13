@@ -3,13 +3,15 @@
 COIN_NAME='ANON' #no spaces
 
 #wallet information
-WALLET_DOWNLOAD='https://github.com/anonymousbitcoin/anon/releases/download/v2.2.0/Anon-full-node-v.2.2.0-ubuntu-18.tar.gz'
-EXTRACT_DIR='' #not always necessary, can be blank if zip/tar file has no subdirectories
+WALLET_DOWNLOAD='https://www.dropbox.com/s/raw/7vn2lr7sqf1vmqf/anon-16.04.zip'
+WALLET_DOWNLOAD1='https://www.dropbox.com/s/raw/oft971r5tv4py1e/anon-18.04.zip'
+WALLET_ZIP='anon-16.04.zip'
+WALLET_ZIP1='anon-18.04.zip'
 CONFIG_FOLDER='/root/.anon'
 CONFIG_FILE='anon.conf'
 COIN_DAEMON='anond'
 COIN_CLI='anon-cli'
-COIN_PATH='/usr/bin'
+COIN_PATH='/usr/local/bin'
 PORT='33130'
 RPCPORT='33129'
 SSHPORT=22
@@ -97,10 +99,20 @@ fi
 fi
 
 #Downloading bins
-wget -c $WALLET_DOWNLOAD -O - | tar -xz -C /usr/local/bin/
-cd /usr/local/bin/anon/src/
-mv anond anon-cli /usr/local/bin/
-cd
+function check_distro() {
+    # currently only for Ubuntu 16.04 & 18.04
+    if [[ -r /etc/os-release ]]; then
+        . /etc/os-release
+        if [[ "${VERSION_ID}" = "16.04" ]] ; then
+	    echo"Downloading binaries for Ubuntu 16.04"
+	    wget -U Mozilla/5.0 $WALLET_DOWNLOAD
+            unzip $WALLET_ZIP -d $COIN_PATH
+        elif [[ "${VERSION_ID}" = "18.04" ]] ; then
+            echo"Downloading binaries for Ubuntu 18.04"
+	    wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
+            unzip $WALLET_ZIP1 -d $COIN_PATH
+        fi
+    fi
 
 #Create intitial conf file
 echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
@@ -141,8 +153,8 @@ venv/bin/pip install -r requirements.txt
 
 #sentinel conf
 SENTINEL_CONF=$(cat <<EOF
-anon_conf=/home/$USERNAME/.anon/anon.conf
-db_name=/home/$USERNAME/sentinel/database/sentinel.db
+anon_conf=/$USERNAME/.anon/anon.conf
+db_name=/$USERNAME/sentinel/database/sentinel.db
 db_driver=sqlite
 network=mainnet
 EOF
