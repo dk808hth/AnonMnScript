@@ -105,7 +105,7 @@ function prepare_system()
 
 #Downloading bins
 wget -c $WALLET_DOWNLOAD -O - | tar -xz -C /usr/local/bin/
-cd /user/local/bin/anon/src/
+cd /usr/local/bin/anon/src/
 mv anond anon-cli /usr/local/bin/
 cd
 
