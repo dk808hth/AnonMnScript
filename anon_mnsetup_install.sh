@@ -98,15 +98,18 @@ fi
 fi
 
 #Downloading bins currently only for Ubuntu 16.04 & 18.04
-if [[ $(lsb_release -d) = *16.04* ]]; then
-  echo"Downloading binaries for Ubuntu 16.04"
-  wget -U Mozilla/5.0 $WALLET_DOWNLOAD
-  unzip $WALLET_ZIP -d $COIN_PATH
-if [[ $(lsb_release -d) = *18.04* ]] ; then
+if [[ $(lsb_release -r) = *18.04* ]]
+then
   echo"Downloading binaries for Ubuntu 18.04"
   wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
-  unzip $WALLET_ZIP1 -d $COIN_PATH
-fi
+  unzip $WALLET_ZIP1 -d /usr/local/bin/
+else
+  if [[ $(lsb_release -r) = *16.04* ]]
+  then
+    echo"Downloading binaries for Ubuntu 16.04"
+    wget -U Mozilla/5.0 $WALLET_DOWNLOAD
+    unzip $WALLET_ZIP -d /usr/local/bin/
+  fi
 fi
 
 #Create intitial conf file
