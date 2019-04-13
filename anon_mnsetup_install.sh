@@ -85,18 +85,11 @@ fi
 
 #Create swap
 echo -e "${YELLOW}CREATING SWAP...${NC}"
-TOTAL_MEM=$(free -m | awk '/^Mem:/{print $2}')
-TOTAL_SWP=$(free -m | awk '/^Swap:/{print $2}')
-TOTAL_M=$(($TOTAL_MEM + $TOTAL_SWP))
-if [ $TOTAL_M -lt 4000 ]; then
-if ! grep -q '/swapfile' /etc/fstab ; then
 fallocate -l 4G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
-fi
-fi
 
 #Downloading bins
 function check_distro() {
