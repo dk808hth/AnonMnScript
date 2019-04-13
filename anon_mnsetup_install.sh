@@ -158,6 +158,7 @@ db_name=/$USERNAME/sentinel/database/sentinel.db
 db_driver=sqlite
 network=mainnet
 EOF
+)
 
 #Configure Sentinel
 echo "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
