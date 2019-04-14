@@ -100,21 +100,23 @@ fi
 #Downloading bins currently only for Ubuntu 16.04 & 18.04
 if [[ $(lsb_release -r) = *18.04* ]]
 then
-  echo"Downloading binaries for Ubuntu 18.04"
+  echo -e "${YELLOW}Downloading binaries for Ubuntu 18.04...${NC}"
   wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
   unzip $WALLET_ZIP1 -d /usr/local/bin/
+  chmod 755 /usr/local/bin/anon*
 else
   if [[ $(lsb_release -r) = *16.04* ]]
   then
-    echo"Downloading binaries for Ubuntu 16.04"
+    echo -e "${YELLOW}Downloading binaries for Ubuntu 16.04...${NC}"
     wget -U Mozilla/5.0 $WALLET_DOWNLOAD
     unzip $WALLET_ZIP -d /usr/local/bin/
+    chmod 755 /usr/local/bin/anon*
   fi
 fi
 
 #Create intitial conf file
-echo -e "${YELLOW}CREATING INITIAL CONF FILE${NC}"
-RPCUSER=$(pwgen -1 8 -n)
+echo -e "${YELLOW}CREATING INITIAL CONF FILE...${NC}"
+RPCUSER=$COIN_NAME
 PASSWORD=$(pwgen -1 20 -n)
 mkdir $CONFIG_FOLDER
 touch $CONFIG_FOLDER/$CONFIG_FILE
@@ -137,12 +139,12 @@ unzip $BOOTSTRAP_ZIP -d $CONFIG_FOLDER
 rm -rf $BOOTSTRAP_ZIP
 
 #Download params
-echo -e "${YELLOW}DOWNLOADING CHAIN PARAMS${NC}"
+echo -e "${YELLOW}DOWNLOADING CHAIN PARAMS...${NC}"
 wget $FETCHPARAMS
 bash fetch-params.sh
 
 #Install Sentinel
-echo "${YELLOW}INSTALLING SENTINEL${NC}"
+echo "${YELLOW}INSTALLING SENTINEL...${NC}"
 cd
 git clone https://github.com/anonymousbitcoin/sentinel.git
 cd sentinel
@@ -187,8 +189,8 @@ After=network.target
 Type=forking
 User=$USERNAME
 Group=$USERNAME
-WorkingDirectory=/home/$USERNAME/.anon/
-ExecStart=$COIN_PATH/$COIN_DAEMON -datadir=/home/$USERNAME/.anon/ -conf=/home/$USERNAME/.anon/$CONFIG_FILE -daemon
+WorkingDirectory=/$USERNAME/.anon/
+ExecStart=$COIN_PATH/$COIN_DAEMON -datadir=/$USERNAME/.anon/ -conf=/$USERNAME/.anon/$CONFIG_FILE -daemon
 ExecStop=-$COIN_PATH/$COIN_CLI stop
 Restart=always
 RestartSec=3
@@ -213,7 +215,7 @@ echo -e "${YELLOW}MAKING GENKEY...${NC}"
 GENKEY=$($COIN_CLI masternode genkey)
 
 #Finalise conf
-cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
+cat << EOF >> $CONFIG_FOLDER/$CONFIG_FILE
 masternode=1
 masternodeprivkey=$GENKEY
 externalip=$WANIP
