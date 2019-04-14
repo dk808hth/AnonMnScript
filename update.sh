@@ -20,7 +20,7 @@ NC='\033[0m'
 #stop service to update system
 echo -e "${YELLOW}STOPPING $COIN_NAME SERVICE AND UPDATING SYSTEM...${NC}"
 systemctl stop $COIN_NAME.service
-apt-get update && apt-get upgrade-y
+apt-get update && apt-get upgrade -y
 
 #download bins accordingly to ubuntu version
 echo -e "${YELLOW}DETECTING UBUNTU VERSION AND DOWNLOADING BINARIES ACCORDINGLY...${NC}"
@@ -44,6 +44,6 @@ fi
 echo -e "${YELLOW}BINARIES HAVE BEEN UPDATED AND NOW REBOOTING SYSTEM $COIN_NAME SERVICE WILL AUTO START THE DAEMON...${NC}"
 echo -e "${YELLOW}AFTER SYSTEM REBOOTS SSH BACK INTO SERVER WAIT 1 MIN AND ANON-CLI GETINFO TO CHECK PROTOCOL...${NC}"
 echo -e "${YELLOW}YOU WILL ALSO NEED TO RESTART YOUR MASTERNODE FROM THE CONTROL WALLET...${NC}"
-echo -e "${RED}REBOOTING IN 10 SECONDS...${NC}"
-sleep 10
+echo -e "${RED}REBOOTING IN 30 SECONDS...${NC}"
+sleep 30
 reboot
