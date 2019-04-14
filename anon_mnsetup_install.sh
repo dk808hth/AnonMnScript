@@ -19,8 +19,8 @@ USERNAME=$LOGNAME
 
 WANIP=$(wget http://ipecho.net/plain -O - -q)
 
-BOOTSTRAP='https://www.dropbox.com/s/raw/whsy5fe2guv1hti/anon-bootstrap.zip'
-BOOTSTRAP_ZIP='anon-bootstrap.zip'
+BOOTSTRAP='https://assets.anonfork.io/anon-bootstrap.tar.gz'
+BOOTSTRAP_ZIP='anon-bootstrap.tar.gz'
 
 FETCHPARAMS='https://raw.githubusercontent.com/anonymousbitcoin/anon/master/anonutil/fetch-params.sh'
 
@@ -132,8 +132,7 @@ EOF
 
 #Bootstrap to sync quick
 echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
-wget -U Mozilla/5.0 $BOOTSTRAP
-unzip $BOOTSTRAP_ZIP -d $CONFIG_FOLDER
+wget -c $BOOTSTRAP -O - | tar -xz -C /root/.anon/ &> /dev/null
 rm -rf $BOOTSTRAP_ZIP
 
 #Download params
@@ -158,7 +157,7 @@ EOF
 )
 
 #Configure Sentinel
-echo "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
+echo -e "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
 echo "$SENTINEL_CONF" > ~/sentinel/sentinel.conf
 cd
 crontab -l > tempcron
@@ -208,9 +207,9 @@ sleep 3
 echo -e "${GREEN}ENABLING SERVICE FOR ANON TO AUTOSTART ON REBOOT...${NC}"
 systemctl enable $COIN_NAME.service &> /dev/null
 
-echo -e "${GREEN}STARTING ANON SERVICE...${NC}"
+echo -e "${GREEN}STARTING ANON SERVICE PLEASE WAIT PATIENTLY...${NC}"
 systemctl start $COIN_NAME.service >/dev/null 2>&1
-sleep 60
+sleep 120
 
 #Create genkey
 echo -e "${YELLOW}MAKING GENKEY AND FINALIZING CONF...${NC}"
@@ -226,8 +225,14 @@ logtimestamps=1
 server=1
 listen=1
 EOF
+sleep 5
 
-echo "============================================================================="
+#Get info
+$COIN_CLI getinfo
+sleep 5
+
+echo -e "${YELLOW}=====================================================================${NC}"
+echo
 echo "COPY THIS TO MASTERNODE CONF FILE AND REPLACE TxID and OUTPUT"
 echo "WITH THE DETAILS FROM YOUR COLLATERAL TRANSACTION"
 echo -e "${YELLOW}MN1 $WANIP:$PORT $GENKEY TxID OUTPUT${NC}"
@@ -237,6 +242,7 @@ echo "FOLLOWING COMMANDS TO MANAGE $COIN_NAME SERVICE"
 echo -e "TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
 echo -e "TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
 echo -e "STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
-echo "IN THE EVENT SERVER REBOOTS DAEMON SERVICE WILL AUTO START"
-echo "============================================================================="
+echo -e "IN THE EVENT SERVER ${RED}REBOOTS${NC} DAEMON SERVICE WILL ${GREEN}AUTO START${NC}"
+echo
+echo -e "${YELLOW}=====================================================================${NC}"
 sleep 1
