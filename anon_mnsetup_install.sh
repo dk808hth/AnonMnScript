@@ -24,6 +24,7 @@ BOOTSTRAP_ZIP='anon-bootstrap.tar.gz'
 
 FETCHPARAMS='https://raw.githubusercontent.com/anonymousbitcoin/anon/master/anonutil/fetch-params.sh'
 
+CYAN='\033[1;36m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -165,6 +166,10 @@ echo "* * * * * cd /$USERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/de
 crontab tempcron
 rm tempcron
 
+#Download update script for later use
+echo -e "${YELLOW}DOWNLOADING UPDATE SCRIPT FOR LATER USE TO EASILY UPDATE BINARIES...${NC}"
+wget https://raw.githubusercontent.com/dk808hth/AnonMnScript/master/update.sh && chmod +x update.sh
+
 #Basic security
 echo -e "${YELLOW}CONFIGURING FIREWALL AND ENABLING FAIL2BAN...${NC}"
 ufw allow $PORT/tcp
@@ -231,7 +236,7 @@ sleep 5
 $COIN_CLI getinfo
 sleep 5
 
-echo -e "${YELLOW}=======================================================================================${NC}"
+echo -e "${YELLOW}==================================================================================================${NC}"
 echo
 echo "COPY THIS TO MASTERNODE CONF FILE AND REPLACE TxID and OUTPUT"
 echo "WITH THE DETAILS FROM YOUR COLLATERAL TRANSACTION"
@@ -243,6 +248,9 @@ echo -e "  TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
 echo -e "  TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
 echo -e "  STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
 echo -e "IN THE EVENT SERVER ${RED}REBOOTS${NC} DAEMON SERVICE WILL ${GREEN}AUTO START${NC}"
+echo 
+echo "TO UPDATE RUN FOLLOWING COMMAND. MAKE SURE WITH ADMINS FIRST THAT LINKS ARE UPDATED W/NEW BINS BEFORE RUNNING UPDATE SCRIPT."
+echo -e "${YELLOW}./update.sh"${NC}    ${CYAN}<========= THAT IS COMMAND TO UPDATE${NC}
 echo
-echo -e "${YELLOW}=======================================================================================${NC}"
+echo -e "${YELLOW}==================================================================================================${NC}"
 sleep 1
