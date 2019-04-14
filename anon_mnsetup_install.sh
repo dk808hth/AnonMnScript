@@ -194,6 +194,10 @@ rm tempcron
 echo -e "${YELLOW}DOWNLOADING UPDATE SCRIPT FOR LATER USE TO EASILY UPDATE BINARIES...${NC}"
 wget https://raw.githubusercontent.com/dk808hth/AnonMnScript/master/update.sh && chmod +x update.sh
 
+#Download queue position script
+echo -e "${YELLOW}DOWNLOADING QUEUE POSITION SCRIPT...${NC}"
+wget https://raw.githubusercontent.com/dk808hth/AnonMnScript/master/queue.sh && chmod +x queue.sh
+
 #Basic security
 echo -e "${YELLOW}CONFIGURING FIREWALL AND ENABLING FAIL2BAN...${NC}"
 ufw allow $PORT/tcp
@@ -272,9 +276,12 @@ echo -e "  TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
 echo -e "  TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
 echo -e "  STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
 echo -e "IN THE EVENT SERVER ${RED}REBOOTS${NC} DAEMON SERVICE WILL ${GREEN}AUTO START${NC}"
+echo
+echo "TO GET QUEUE POSITION ENTER FOLLOWING COMMAND"
+echo -e "${GREEN}./queue.sh <YOUR_ADDRESS>{NC} ${CYAN}=======> Example: ./queue.sh AnRBUrEA3TAELQQisR9YXR8V6GWJ71vidv3${NC}"
 echo 
 echo "TO UPDATE RUN FOLLOWING COMMAND. MAKE SURE WITH ADMINS FIRST THAT LINKS ARE UPDATED W/NEW BINS BEFORE RUNNING UPDATE SCRIPT."
-echo -e "${YELLOW}./update.sh"${NC}    ${CYAN}<========= THAT IS COMMAND TO UPDATE${NC}
+echo -e "${YELLOW}./update.sh"${NC}    ${CYAN}<======= THAT IS COMMAND TO UPDATE${NC}
 echo
 echo -e "${YELLOW}==================================================================================================${NC}"
 sleep 1
