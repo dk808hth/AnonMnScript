@@ -231,7 +231,7 @@ sleep 5
 $COIN_CLI getinfo
 sleep 5
 
-echo -e "${YELLOW}=====================================================================${NC}"
+echo -e "${YELLOW}=======================================================================================${NC}"
 echo
 echo "COPY THIS TO MASTERNODE CONF FILE AND REPLACE TxID and OUTPUT"
 echo "WITH THE DETAILS FROM YOUR COLLATERAL TRANSACTION"
@@ -239,10 +239,10 @@ echo -e "${YELLOW}MN1 $WANIP:$PORT $GENKEY TxID OUTPUT${NC}"
 echo "Courtesy of AltTank Fam and DK808"
 echo
 echo "FOLLOWING COMMANDS TO MANAGE $COIN_NAME SERVICE"
-echo -e "TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
-echo -e "TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
-echo -e "STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
+echo -e "  TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
+echo -e "  TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
+echo -e "  STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
 echo -e "IN THE EVENT SERVER ${RED}REBOOTS${NC} DAEMON SERVICE WILL ${GREEN}AUTO START${NC}"
 echo
-echo -e "${YELLOW}=====================================================================${NC}"
+echo -e "${YELLOW}=======================================================================================${NC}"
 sleep 1
