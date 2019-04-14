@@ -278,10 +278,10 @@ echo -e "  STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
 echo -e "IN THE EVENT SERVER ${RED}REBOOTS${NC} DAEMON SERVICE WILL ${GREEN}AUTO START${NC}"
 echo
 echo "TO GET QUEUE POSITION ENTER FOLLOWING COMMAND"
-echo -e "${GREEN}./queue.sh <YOUR_ADDRESS>{NC} ${CYAN}=======> Example: ./queue.sh AnRBUrEA3TAELQQisR9YXR8V6GWJ71vidv3${NC}"
+echo -e "${GREEN}./queue.sh <YOUR_ADDRESS>${NC} ${CYAN}=======> Example: ./queue.sh AnRBUrEA3TAELQQisR9YXR8V6GWJ71vidv3${NC}"
 echo 
 echo "TO UPDATE RUN FOLLOWING COMMAND. MAKE SURE WITH ADMINS FIRST THAT LINKS ARE UPDATED W/NEW BINS BEFORE RUNNING UPDATE SCRIPT."
-echo -e "${YELLOW}./update.sh"${NC}    ${CYAN}<======= THAT IS COMMAND TO UPDATE${NC}
+echo -e "${YELLOW}./update.sh${NC}    ${CYAN}<======= THAT IS COMMAND TO UPDATE${NC}"
 echo
 echo -e "${YELLOW}==================================================================================================${NC}"
 sleep 1
