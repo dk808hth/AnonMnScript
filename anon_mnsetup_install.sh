@@ -19,7 +19,7 @@ USERNAME=$LOGNAME
 
 WANIP=$(wget http://ipecho.net/plain -O - -q)
 
-BOOTSTRAP='http://assets.anonfork.io/anon-bootstrap.zip'
+BOOTSTRAP='https://www.dropbox.com/s/raw/whsy5fe2guv1hti/anon-bootstrap.zip'
 BOOTSTRAP_ZIP='anon-bootstrap.zip'
 
 FETCHPARAMS='https://raw.githubusercontent.com/anonymousbitcoin/anon/master/anonutil/fetch-params.sh'
@@ -47,17 +47,13 @@ else
       SSHPORT=22
     fi
 fi
-echo -e "${YELLOW}Using SSH port:\033[1;32m" $SSHPORT
-echo -e "\033[0m"
-sleep 2
-
 echo -e "${YELLOW}Using SSH port:${GREEN}" $SSHPORT
 echo -e "${NC}"
 sleep 2
 
-echo -e "${YELLOW}=================================================================="
+echo -e "${YELLOW}==============================="
 echo -e "$COIN_NAME MASTERNODE INSTALLER"
-echo -e "==================================================================${NC}"
+echo -e "===============================${NC}"
 echo -e "${YELLOW}Installing packages and updates...${NC}"
 sudo apt-get update -y &> /dev/null
 sudo apt-get install software-properties-common -y &> /dev/null
@@ -98,6 +94,7 @@ fi
 fi
 
 #Downloading bins currently only for Ubuntu 16.04 & 18.04
+echo -e "${YELLOW}DETECTING UBUNTU VERSION TO DOWNLOAD CORRECT BINARIES...${NC}"
 if [[ $(lsb_release -r) = *18.04* ]]
 then
   echo -e "${YELLOW}Downloading binaries for Ubuntu 18.04...${NC}"
@@ -127,6 +124,7 @@ rpcallowip=127.0.0.1
 port=$PORT
 rpcport=$RPCPORT
 daemon=1
+txindex=1
 addnode=explorer.anonfork.io
 addnode=explorer.anon.zeltrez.io
 maxconnections=256
@@ -146,8 +144,7 @@ bash fetch-params.sh
 #Install Sentinel
 echo "${YELLOW}INSTALLING SENTINEL...${NC}"
 cd
-git clone https://github.com/anonymousbitcoin/sentinel.git
-cd sentinel
+git clone https://github.com/anonymousbitcoin/sentinel.git && cd sentinel
 virtualenv ./venv
 venv/bin/pip install -r requirements.txt
 
@@ -164,7 +161,10 @@ EOF
 echo "${YELLOW}CONFIGURING SENTINEL AND CRON JOB...${NC}"
 echo "$SENTINEL_CONF" > ~/sentinel/sentinel.conf
 cd
-crontab -l -echo "* * * * * cd /$USERNAME/sentinel && ./venv/bin/python bin/sentinel.py 2>&1 >> sentinel-cron.log" | crontab   
+crontab -l > tempcron
+echo "* * * * * cd /$USERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1" >> tempcron
+crontab tempcron
+rm tempcron
 
 #Basic security
 echo -e "${YELLOW}CONFIGURING FIREWALL AND ENABLING FAIL2BAN...${NC}"
@@ -205,9 +205,10 @@ EOF
 
 systemctl daemon-reload
 sleep 3
+echo -e "${GREEN}ENABLING SERVICE FOR ANON TO AUTOSTART ON REBOOT...${NC}"
 systemctl enable $COIN_NAME.service &> /dev/null
 
-echo -e "${GREEN}STARTING DAEMON SERVICE FOR ANON${NC}"
+echo -e "${GREEN}STARTING ANON SERVICE...${NC}"
 systemctl start $COIN_NAME.service >/dev/null 2>&1
 
 #Create genkey
@@ -215,16 +216,14 @@ echo -e "${YELLOW}MAKING GENKEY...${NC}"
 GENKEY=$($COIN_CLI masternode genkey)
 
 #Finalise conf
-cat << EOF >> $CONFIG_FOLDER/$CONFIG_FILE
+cat <<EOF >> $CONFIG_FOLDER/$CONFIG_FILE
 masternode=1
 masternodeprivkey=$GENKEY
 externalip=$WANIP
 bind=$WANIP
 logtimestamps=1
 server=1
-txindex=1
 listen=1
-maxconnections=256
 EOF
 
 echo "============================================================================="
