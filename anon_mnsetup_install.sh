@@ -210,12 +210,13 @@ systemctl enable $COIN_NAME.service &> /dev/null
 
 echo -e "${GREEN}STARTING ANON SERVICE...${NC}"
 systemctl start $COIN_NAME.service >/dev/null 2>&1
+sleep 60
 
 #Create genkey
-echo -e "${YELLOW}MAKING GENKEY...${NC}"
+echo -e "${YELLOW}MAKING GENKEY AND FINALIZING CONF...${NC}"
 GENKEY=$($COIN_CLI masternode genkey)
 
-#Finalise conf
+#Append masternode info to conf
 cat <<EOF >> $CONFIG_FOLDER/$CONFIG_FILE
 masternode=1
 masternodeprivkey=$GENKEY
