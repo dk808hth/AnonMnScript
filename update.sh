@@ -5,9 +5,9 @@ COIN_NAME='ANON'
 #  This script will stop daemon, remove old binaries, download latest binaries, and start daemon service.
 
 #wallet info
-WALLET_DOWNLOAD='https://www.dropbox.com/s/raw/mte67x69thrlow0/anon-linux.zip'
+WALLET_DOWNLOAD='https://assets.anonfork.io/anon-16.04.zip'
 WALLET_DOWNLOAD1='https://assets.anonfork.io/anon-18.04.zip'
-WALLET_ZIP='anon-linux.zip'
+WALLET_ZIP='anon-16.04.zip'
 WALLET_ZIP1='anon-18.04.zip'
 COIN_CLI='anon-cli'
 COIN_PATH='/usr/local/bin'
