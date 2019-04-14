@@ -236,7 +236,7 @@ echo
 echo "FOLLOWING COMMANDS TO MANAGE $COIN_NAME SERVICE"
 echo -e "TO START- ${GREEN}systemctl start $COIN_NAME.service${NC}"
 echo -e "TO STOP - ${GREEN}systemctl stop $COIN_NAME.service${NC}"
-echo -e "STATUS  - ${GREEN}systemctl stauts $COIN_NAME.service${NC}"
+echo -e "STATUS  - ${GREEN}systemctl status $COIN_NAME.service${NC}"
 echo "IN THE EVENT SERVER REBOOTS DAEMON SERVICE WILL AUTO START"
 echo "============================================================================="
 sleep 1
