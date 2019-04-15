@@ -166,7 +166,7 @@ wget $FETCHPARAMS
 bash fetch-params.sh
 
 #Install Sentinel
-echo "${YELLOW}INSTALLING SENTINEL...${NC}"
+echo -e "${YELLOW}INSTALLING SENTINEL...${NC}"
 cd
 git clone https://github.com/anonymousbitcoin/sentinel.git && cd sentinel
 virtualenv ./venv
