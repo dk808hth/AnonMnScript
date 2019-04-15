@@ -1,10 +1,5 @@
 #!/bin/bash
 
-RED='\033[0;31m'
-GREEN='\033[1;32m'
-CYAN='\033[1;36m'
-NC='\033[0m'
-
 MNLISTCMD="anon-cli masternodelist full 2>/dev/null"
 
 MNADDR=$1
@@ -67,13 +62,13 @@ MN_QUEUE_POSITION=$(echo "$SORTED_MN_LIST" | grep -A9999999 $MNADDR | wc -l)
 MN_QUEUE_IN_SELECTION=$(( $MN_QUEUE_POSITION <= $(( $MN_QUEUE_LENGTH / 10 )) ))
 
 echo ""
-echo "${GREEN}Masternode:${NC} ${CYAN}$MNADDR${NC}"
+echo "Masternode: $MNADDR"
 if [ $MN_VISIBLE -gt 0 ]; then
-    echo "${GREEN}Lastpaid:${NC} ${CYAN}$MN_LASTPAID${NC}"
-    echo "         ${GREEN}-> queue position${NC} ${CYAN}$MN_QUEUE_POSITION/$MN_QUEUE_LENGTH${NC}"
+    echo "Lastpaid: $MN_LASTPAID"
+    echo "         -> queue position $MN_QUEUE_POSITION/$MN_QUEUE_LENGTH"
     if [ $MN_QUEUE_IN_SELECTION -gt 0 ]; then
-        echo " ${GREEN}-> SELECTION PENDING${NC}"
+        echo " -> SELECTION PENDING"
     fi
 else
-    echo "${RED}is not in masternode list"${NC}
+    echo "is not in masternode list"
 fi
