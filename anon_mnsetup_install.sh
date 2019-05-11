@@ -55,11 +55,13 @@ sleep 2
 #Create conf directory and download bootstrap to sync quick
 mkdir $CONFIG_FOLDER
 touch $CONFIG_FOLDER/$CONFIG_FILE
+apt-get install unzip -y &> /dev/null
 echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
 #wget -c $BOOTSTRAP -O - | tar -xz -C /root/.anon/ &> /dev/null
 #rm -rf $BOOTSTRAP_ZIP
 wget -U Mozilla/5.0 https://www.dropbox.com/s/raw/ptcpgwkt3ti2ynw/anon-50k-bootstrap.zip
 unzip anon-50k-bootstrap.zip -d /root/.anon
+rm -rf anon-50k-bootstrap
 
 echo -e "${YELLOW}==============================="
 echo -e "$COIN_NAME MASTERNODE INSTALLER"
@@ -75,7 +77,7 @@ sudo apt-get install build-essential libtool pkg-config -y &> /dev/null
 echo "...."
 sudo apt-get install libc6-dev m4 g++-multilib -y &> /dev/null
 echo "..."
-sudo apt-get install autoconf ncurses-dev unzip git python python-zmq -y &> /dev/null
+sudo apt-get install autoconf ncurses-dev git python python-zmq -y &> /dev/null
 echo ".."
 sudo apt-get install wget curl bsdmainutils automake -y &> /dev/null
 echo "."
