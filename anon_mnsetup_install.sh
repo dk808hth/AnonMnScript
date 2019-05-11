@@ -44,13 +44,22 @@ else
     echo -e "Looks like you have configured a custom SSH port..."
     echo -e
     read -p 'Enter your custom SSH port, or hit [ENTER] for default: ' SSHPORT
-	  if [ -z "$SSHPORT" ]; then
-      SSHPORT=22
-    fi
+if [ -z "$SSHPORT" ]; then
+    SSHPORT=22
+  fi
 fi
 echo -e "${YELLOW}Using SSH port:${GREEN}" $SSHPORT
 echo -e "${NC}"
 sleep 2
+
+#Create conf directory and download bootstrap to sync quick
+mkdir $CONFIG_FOLDER
+touch $CONFIG_FOLDER/$CONFIG_FILE
+echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
+#wget -c $BOOTSTRAP -O - | tar -xz -C /root/.anon/ &> /dev/null
+#rm -rf $BOOTSTRAP_ZIP
+wget -U Mozilla/5.0 https://www.dropbox.com/s/raw/ptcpgwkt3ti2ynw/anon-50k-bootstrap.zip
+unzip anon-50k-bootstrap.zip -d /root/.anon
 
 echo -e "${YELLOW}==============================="
 echo -e "$COIN_NAME MASTERNODE INSTALLER"
@@ -86,28 +95,26 @@ total_swap=$(free -m | awk '/^Swap:/{print $2}')
 total_m=$(($total_mem + $total_swap))
 if [ $total_m -lt 4000 ]; then
 if ! grep -q '/swapfile' /etc/fstab ; then
-fallocate -l 4G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-echo '/swapfile none swap sw 0 0' >> /etc/fstab
-fi
+    fallocate -l 4G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  fi
 fi
 
 #Downloading bins currently only for Ubuntu 16.04 & 18.04
 echo -e "${YELLOW}DETECTING UBUNTU VERSION TO DOWNLOAD CORRECT BINARIES...${NC}"
-if [[ $(lsb_release -r) = *18.04* ]]
-then
-  echo -e "${YELLOW}Downloading binaries for Ubuntu 18.04...${NC}"
-  wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
-  unzip $WALLET_ZIP1 -d /usr/local/bin/
-  chmod 755 /usr/local/bin/anon*
+if [[ $(lsb_release -r) = *18.04* ]]; then
+    echo -e "${YELLOW}Downloading binaries for Ubuntu 18.04...${NC}"
+    wget -U Mozilla/5.0 $WALLET_DOWNLOAD1
+    unzip -o $WALLET_ZIP1 -d /usr/local/bin/
+    chmod 755 /usr/local/bin/anon*
 else
-  if [[ $(lsb_release -r) = *16.04* ]]
-  then
+if [[ $(lsb_release -r) = *16.04* ]]; then
     echo -e "${YELLOW}Downloading binaries for Ubuntu 16.04...${NC}"
     wget -U Mozilla/5.0 $WALLET_DOWNLOAD
-    unzip $WALLET_ZIP -d /usr/local/bin/
+    unzip -o $WALLET_ZIP -d /usr/local/bin/
     chmod 755 /usr/local/bin/anon*
   fi
 fi
@@ -116,8 +123,6 @@ fi
 echo -e "${YELLOW}CREATING INITIAL CONF FILE...${NC}"
 RPCUSER=$COIN_NAME
 PASSWORD=$(pwgen -1 20 -n)
-mkdir $CONFIG_FOLDER
-touch $CONFIG_FOLDER/$CONFIG_FILE
 cat <<EOF > $CONFIG_FOLDER/$CONFIG_FILE
 rpcuser=$RPCUSER
 rpcpassword=$PASSWORD
@@ -154,11 +159,6 @@ addnode=167.114.39.145:33130
 addnode=167.114.39.146:33130
 maxconnections=256
 EOF
-
-#Bootstrap to sync quick
-echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
-wget -c $BOOTSTRAP -O - | tar -xz -C /root/.anon/ &> /dev/null
-rm -rf $BOOTSTRAP_ZIP
 
 #Download params
 echo -e "${YELLOW}DOWNLOADING CHAIN PARAMS...${NC}"
@@ -245,8 +245,16 @@ systemctl start $COIN_NAME.service >/dev/null 2>&1
 sleep 120
 
 #Create genkey
-echo -e "${YELLOW}MAKING GENKEY AND FINALIZING CONF...${NC}"
-GENKEY=$($COIN_CLI masternode genkey)
+echo -e "${YELLOW}FINALIZING CONF...${NC}"
+#GENKEY=$($COIN_CLI masternode genkey)
+#sleep 2
+read -e -p "$(echo -e $YELLOW Paste your masternode private key and press ENTER or leave it blank and press ENTER to generate a new private key.$NC)" GENKEY
+if [[ -z "${GENKEY}" ]]; then
+    GENKEY=$($COIN_CLI masternode genkey) 
+    sleep 3
+	systemctl stop $COIN_NAME.service >/dev/null 2>&1
+    sleep 30
+fi
 
 #Append masternode info to conf
 cat <<EOF >> $CONFIG_FOLDER/$CONFIG_FILE
@@ -254,17 +262,61 @@ masternode=1
 masternodeprivkey=$GENKEY
 externalip=$WANIP
 bind=$WANIP
-logtimestamps=1
+logtimestamp=1
 server=1
 listen=1
 EOF
 sleep 5
+systemctl start $COIN_NAME.service >/dev/null 2>&1
+sleep 20
 
 #Get info
 $COIN_CLI getinfo
 sleep 5
+echo -e "
+                           %%%%%%%%%%%%%%%%%%%%%%%%%%
+                      %%%%%%%%%%%%%..      ..%%%%%%%  ${RED}%%%${NC}
+                  %%%%%%%%%    ..%%%%%%%%%%%%%%..    ${RED}%%%% %%%${NC}
+               %%%%%%%.  .%%%%%%%%%%%%%%%%%%%%%%.  ${RED}%%%% %%%%${NC}   %%
+             %%%%%%  .%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%% %%%%${NC}   %%%%%
+           %%%%%. .%%%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}.%%%.%%%%.${NC}  .. .%%%%%
+         %%%%%  .%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%% %%%%${NC}   %%%%.  %%%%%
+       %%%%%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}.%%%..%%%.${NC}  .%%%%%%%%  %%%%%
+      %%%%. .%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%% %%%%${NC}   %%%%%%%%%%%. .%%%%
+     %%%%  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%.%%%%${NC}  .%%%%%%%%%%%%%%  %%%%
+   .%%%% .%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%.${NC}  %%%%%%%%%%%%%%%%%. %%%%.
+  .%%%. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%%%${NC}  %%%%%%%%%%%%%%%%%%% %%%%.
+  %%%. %%%%%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}%%%%%%%%%%%%%${NC}  .%%%%%%%%%%%%%%%%%%% %%%%
+ %%%% .%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%%%%%%${NC}   %%%%%%%%%%%%%%%%%%%. %%%%
+%%%%  %%%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}.%%%%%%%%% %%%%%%${NC}  %%%%%%%%%%%%%%%%%%%%  %%%%
+%%%. %%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%   ${RED}%%%%%%${NC}  .%%%%%%%%%%%%%%%%%%%% .%%%
+%%%  %%%%%%%%%%%%%%%%%%%%%%%%%  ${RED}.%%%%%%%%%    ${RED}%%%%%%${NC}   %%%%%%%%%%%%%%%%%%%%  %%%
+%%% .%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%   %   ${RED}%%%%%%${NC}  %%%%%%%%%%%%%%%%%%%%. %%%
+%%. %%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%%%%   %%.  ${RED}%%%%%%${NC}  .%%%%%%%%%%%%%%%%%%%% %%%
+%%     ..%%%%%%%%%%%%%%%%.  ${RED}%%%%%%%%%.  %%%%%  ${RED}%%%%%%${NC}   %%%%%%%%%%%%%%%%%%%% .%%
+%%  ${RED}%%%.${NC}        ..%%%%%%   ${RED}%%%%%%%%%${NC}   %%%%%%   ${RED}%%%%%%${NC}  %%%%%%%%%%%%%%%%%%%% .%%
+%%. ${RED}%%%%%%%%%%%%.${NC}        ${RED}.%%%%%%%%.${NC}  .%%%%%%%.  ${RED}%%%%%%${NC}  %%%%%%%%%%%%%%%%%%%% %%%
+%%% ${RED}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%${NC}   .%%%%%%%%%  ${RED}%%%%%%${NC}   %%%%%%%%%%%%%%%%%%. %%%
+%%%   ${RED}.%%%%%%%%%%%%%%%%%%%%%%%%%%.        .%%%  ${RED}.%%%%%.${NC}  %%%%%%%%%%%%%%%%%%  %%%
+%%%.  .        ${RED}.%%%%%%%%%%%%%%%%%%%%%%%%%.       %%%%%%${NC}  %%%%%%%%%%%%%%%%%% .%%%
+%%%%  %%%%%%%%..    ${RED}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%${NC}   %%%%%%%%%%%%%%%%  %%%%
+ %%%% .%%%%%%%%.  ${RED}%%%% %%%%     .%%%%%%%%%%%%%%%%%%%%%%.${NC}  %%%%%%%%%%%%%%%. %%%%
+  %%%. %%%%%%%   ${RED}%%%% %%%%${NC}   %..        ${RED}.%%%%%%%%%%%%%%%${NC}  %%%%%%%%%%%%%%% %%%%
+  .%%%. %%%%.  ${RED}%%%%.%%%%${NC}   %%%%%%%%%%%%..       ${RED}.%%%%%%%${NC}  .%%%%%%%%%%%%% .%%%.
+   .%%%% .%   ${RED}%%%% %%%%${NC}   %%%%%%%%%%%%%%%%%%%%%.  ${RED}%%%%%%${NC}   %%%%%%%%%%%. %%%%.
+    .%%%%   ${RED}.%%%..%%%.${NC}  .%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%${NC}  %%%%%%%%%%  %%%%.
+      %%.  ${RED}%%%% %%%%${NC}   %%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}%%%%%%${NC}  .%%%%%%%% .%%%%
+          ${RED}%%%% %%%%${NC}  .%%%%%%%%%%%%%%%%%%%%%%%%%%%  ${RED}%%%%%%${NC}   %%%%%%  %%%%%
+         ${RED}%%% %%%%${NC}   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%%%%%${NC}  %%%%  %%%%%
+            ${RED}%%%%${NC}   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.  ${RED}%%%%%%${NC}  .. .%%%%%
+             ${RED}%${NC}   %%  .%%%%%%%%%%%%%%%%%%%%%%%%%%%%  ${RED}%%%%%%${NC}   %%%%%%
+                %%%%%%.  .%%%%%%%%%%%%%%%%%%%%%%%%   ${RED}%%.${NC} .%%%%%%%
+                  %%%%%%%%%   ..%%%%%%%%%%%%%%%%..   %%%%%%%%%
+                     .%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.
+                          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+"
 
-echo -e "${YELLOW}===========================================================================================================================${NC}"
+echo -e "${YELLOW}============================================================================================================================${NC}"
 echo
 echo "COPY THIS TO MASTERNODE CONF FILE AND REPLACE TxID and OUTPUT"
 echo "WITH THE DETAILS FROM YOUR COLLATERAL TRANSACTION"
@@ -283,5 +335,5 @@ echo
 echo "TO UPDATE RUN FOLLOWING COMMAND. MAKE SURE WITH ADMINS FIRST THAT LINKS ARE UPDATED W/NEW BINS BEFORE RUNNING UPDATE SCRIPT."
 echo -e "${YELLOW}./update.sh${NC}    ${CYAN}<======= THAT IS COMMAND TO UPDATE${NC}"
 echo
-echo -e "${YELLOW}===========================================================================================================================${NC}"
+echo -e "${YELLOW}============================================================================================================================${NC}"
 sleep 1
