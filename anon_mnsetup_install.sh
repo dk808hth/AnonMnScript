@@ -61,7 +61,7 @@ echo -e "${YELLOW}DOWNLOADING BOOTSTRAP FOR QUICK SYNCING...${NC}"
 #rm -rf $BOOTSTRAP_ZIP
 wget -U Mozilla/5.0 https://www.dropbox.com/s/raw/ptcpgwkt3ti2ynw/anon-50k-bootstrap.zip
 unzip anon-50k-bootstrap.zip -d /root/.anon
-rm -rf anon-50k-bootstrap
+rm -rf anon-50k-bootstrap.zip
 
 echo -e "${YELLOW}==============================="
 echo -e "$COIN_NAME MASTERNODE INSTALLER"
